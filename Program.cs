@@ -2,65 +2,109 @@
 {
     internal class Program
     {
-        static void Main(string[] args)
+        static double ReadNumber(string prompt)
         {
-            double num1 = 0, num2, result;
-            char op;
+            while (true)
+            {
+                Console.Write(prompt);
+                if (double.TryParse(Console.ReadLine(), out double number))
+                    return number;
+                Console.WriteLine("Ошибка: Введите корректное число!");
+            }
+        }
 
-            Console.WriteLine("||||||||||||");
-            Console.WriteLine("Калькулятор");
-            Console.WriteLine("||||||||||||");
+        static char ReadOperation()
+        {
+            while (true)
+            {
+                Console.Write("Введите арифметическую операцию (+, -, *, /): ");
+                string input = Console.ReadLine();
 
+                if (!string.IsNullOrEmpty(input) && "+-*/".Contains(input[0]))
+                    return input[0];
+
+                Console.WriteLine("Ошибка: Неверная операция! Используйте +, -, * или /.");
+            }
+        }
+
+        static bool CalculateOperation()
+        {
             try
-            {                
-                // Получаем первое число
-                Console.Write("\nВведите первое число: ");
-                num1 = Convert.ToDouble(Console.ReadLine());
+            {
+                double num1 = ReadNumber("Введите первое число: ");
+                char op = ReadOperation();
+                double num2 = ReadNumber("Введите второе число: ");
+
+                string result = op switch
+                {
+                    '+' => $"{num1} + {num2} = {num1 + num2}",
+                    '-' => $"{num1} - {num2} = {num1 - num2}",
+                    '*' => $"{num1} * {num2} = {num1 * num2}",
+                    '/' when num2 != 0 => $"{num1} / {num2} = {num1 / num2:F2}",
+                    '/' => "Ошибка: Деление на ноль!",
+                    _ => "Неизвестная ошибка"
+                };
+
+                Console.WriteLine($"\nРезультат: {result}");
+                return true;
             }
             catch (Exception ex)
             {
-                Console.WriteLine("Это не число");
+                Console.WriteLine($"Произошла непредвиденная ошибка: {ex.Message}");
+                return false;
             }
-            // Получаем операцию
-            Console.Write("Введите арифметическую операцию (+, -, *, /): ");
-            op = Convert.ToChar(Console.ReadLine());
+        }
 
-            // Получаем второе число
-            Console.Write("Введите второе число: ");
-            num2 = Convert.ToDouble(Console.ReadLine());
-
-            // Perform calculation based on operator
-            switch (op)
+        static bool AskForContinue()
+        {
+            while (true)
             {
-                case '+':
-                    result = num1 + num2;
-                    Console.WriteLine($"Результат: {num1} + {num2} = {result}");
-                    break;
-                case '-':
-                    result = num1 - num2;
-                    Console.WriteLine($"Результат: {num1} - {num2} = {result}");
-                    break;
-                case '*':
-                    result = num1 * num2;
-                    Console.WriteLine($"Результат: {num1} * {num2} = {result}");
-                    break;
-                case '/':
-                    if (num2 != 0) // Проверка деления на ноль
-                    {
-                        result = num1 / num2;
-                        Console.WriteLine($"Результат: {num1} / {num2} = {result}");
-                    }
-                    else
-                    {
-                        Console.WriteLine("Ошибка: Деление на 0.");
-                    }
-                    break;
-                default:
-                    Console.WriteLine("Не верная арифметическая операция.");
-                    break;
+                Console.Write("\nХотите выполнить еще одну операцию? (да/нет): ");
+                string answer = Console.ReadLine()?.ToLower().Trim();
+
+                switch (answer)
+                {
+                    case "да":
+                    case "д":
+                    case "yes":
+                    case "y":
+                        return true;
+                    case "нет":
+                    case "н":
+                    case "no":
+                    case "n":
+                        return false;
+                    default:
+                        Console.WriteLine("Пожалуйста, введите 'да' или 'нет'");
+                        break;
+                }
+            }
+        }
+
+        static void Main(string[] args)
+        {
+            Console.WriteLine("++++++++++++++++++++++");
+            Console.WriteLine("КОНСОЛЬНЫЙ КАЛЬКУЛЯТОР");
+            Console.WriteLine("++++++++++++++++++++++");
+
+            bool continueCalculating = true;
+
+            while (continueCalculating)
+            {
+                bool calculationSuccess = CalculateOperation();
+
+                if (calculationSuccess)
+                {
+                    continueCalculating = AskForContinue();
+                }
+                else
+                {
+                    Console.WriteLine("Попробуйте еще раз...");
+                }
             }
 
-            Console.WriteLine("\nНажмите для выхода.");
+            Console.WriteLine("\n+++++++++++++++++++++++++++++++++");
+            Console.WriteLine("Нажмите любую клавишу для выхода...");
             Console.ReadKey();
         }
     }
